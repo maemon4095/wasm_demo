@@ -60,6 +60,7 @@ let binaryBuffer = null;
             jsEditor.getAction('editor.action.formatDocument').run();
             const value = jsEditor.getValue();
             localStorage.setItem(jsKey, value);
+            console.log('js saved');
             update();
         });
 
@@ -67,20 +68,11 @@ let binaryBuffer = null;
             watEditor.getAction('editor.action.formatDocument').run();
             const value = watEditor.getValue();
             localStorage.setItem(watKey, value);
+            console.log('wat saved');
             update();
         });
     });
 
-    const features = {};
-
-    for (const feature of FEATURES) {
-        var elem = document.getElementById(`wasm-feature-${feature}`);
-        features[feature] = elem.checked;
-        elem.addEventListener('change', e => {
-            features[feature] = e.target.checked;
-            update();
-        });
-    }
 
     const wrappedConsole = Object.create(console);
     wrappedConsole.log = (...args) => {
@@ -99,6 +91,10 @@ let binaryBuffer = null;
     }
 
     function evalWat(source) {
+        const features = {};
+        for (const feature of FEATURES) {
+            features[feature] = localStorage.getItem(`wasm-feature-${feature}`);
+        }
         let module;
         try {
             module = wabt.parseWat('test.wast', source, features);
@@ -114,7 +110,8 @@ let binaryBuffer = null;
     function evalJs(source) {
         if (binaryBuffer === null) return;
         let wasm = new WebAssembly.Module(binaryBuffer);
-        const fn = new Function('wasmModule', 'console', source);
+        const moduleName = localStorage["wasm-module-name"] ?? "wasmModule";
+        const fn = new Function(moduleName, 'console', source);
         fn(wasm, wrappedConsole);
     }
 })();

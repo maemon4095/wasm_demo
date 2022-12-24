@@ -27,7 +27,7 @@ jobs:
           git switch pages
           git rm -rf *
           git restore --source ${GITHUB_REF##*/} .
-          rm -rf ./github
+          rm -rf ./.github
           git add -A
           git commit -m "copy from main"
           git push

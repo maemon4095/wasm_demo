@@ -28,6 +28,7 @@ jobs:
           git rm -rf *
           git restore --source ${GITHUB_REF##*/} .
           rm -rf .github
+          ls
           git add -A
           git commit -m "copy from main"
           git push

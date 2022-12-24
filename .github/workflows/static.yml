@@ -31,8 +31,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          ref: pages
       - name: copy to pages
         run: |
           git config --global user.name "${GITHUB_ACTOR}"

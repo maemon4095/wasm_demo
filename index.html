@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<style>
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+
+  html,
+  body {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  body {
+    padding: 1em;
+  }
+
+
+  .editor-container {
+    overflow: hidden;
+  }
+
+  #jscode {
+    flex: auto;
+  }
+
+  #result {
+    flex: auto;
+  }
+
+  #watcode {
+    flex: auto;
+  }
+
+  #vhandle {
+    grid-area: vh;
+    height: 1em;
+    cursor: ns-resize;
+    flex: none;
+  }
+
+  #hhandle {
+    grid-area: hh;
+    width: 1em;
+    cursor: ew-resize;
+    flex: none;
+  }
+</style>
+
+<body>
+  <div style="width: 100%; height: 100%; display: flex; flex-direction: row; align-items: stretch;">
+    <div style="flex: 1; display: flex; flex-direction: column; align-items: stretch;">
+      <div id="watcode" class="editor-container"></div>
+      <div id="vhandle"></div>
+      <div id="jscode" class="editor-container"></div>
+    </div>
+    <div id="hhandle"></div>
+    <pre id="result"></pre>
+  </div>
+</body>
+<script>
+  const vhandle = document.getElementById("vhandle");
+  const hhandle = document.getElementById("hhandle");
+  setupHandle(vhandle, (e, x, y) => {
+    console.log(e.offsetTop);
+    e.style.top = `${e.offsetTop + y}px`;
+  });
+
+  function setupHandle(elem, apply) {
+    let dragging = false;
+    elem.addEventListener('mousedown', (e) => {
+      dragging = true;
+    });
+    elem.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      apply(elem, e.movementX, e.movementY);
+    });
+    elem.addEventListener('mouseup', (e) => {
+      dragging = false;
+    });
+  }
+
+</script>
+<script src="./libwabt.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/vs/loader.min.js"></script>
+<script>
+  const resultContainer = document.getElementById("result");
+  let binaryBuffer = null;
+  let binaryBlobUrl = null;
+
+  const __entry = async () => {
+    const wabt = await WabtModule();
+
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/vs' } })
+
+    window.MonacoEnvironment = {
+      getWorkerUrl: function (workerId, label) {
+        return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
+          self.MonacoEnvironment = {
+            baseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/'
+          };
+          importScripts('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.21.2/min/vs/base/worker/workerMain.js');`
+        )}`
+      }
+    }
+
+    const localStorage = window.localStorage;
+    const jsKey = "js";
+    const watKey = "wat";
+    require(['vs/editor/editor.main'], function () {
+      const jsEditor = monaco.editor.create(document.getElementById('jscode'), {
+        value: localStorage.getItem(jsKey),
+        automaticLayout: true,
+        theme: "vs-dark",
+        language: 'javascript'
+      });
+
+      const watEditor = monaco.editor.create(document.getElementById('watcode'), {
+        value: localStorage.getItem(watKey),
+        automaticLayout: true,
+        theme: "vs-dark",
+        language: 'wat'
+      });
+
+      jsEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {
+        jsEditor.getAction('editor.action.formatDocument').run();
+        const value = jsEditor.getValue();
+        localStorage.setItem(jsKey, value);
+        update();
+      });
+
+      watEditor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {
+        watEditor.getAction('editor.action.formatDocument').run();
+        const value = watEditor.getValue();
+        localStorage.setItem(watKey, value);
+        update();
+      });
+    })
+
+    function update() {
+      resultContainer.textContent = undefined;
+      try {
+        evalWat(localStorage.getItem(watKey));
+        evalJs(localStorage.getItem(jsKey));
+      } catch (e) {
+        resultContainer.textContent += e.toString();
+      }
+    }
+
+    function evalWat(source) {
+      let module;
+      let features = undefined;
+      try {
+        module = wabt.parseWat('test.wast', source, features);
+        module.resolveNames();
+        module.validate(features);
+        const binaryOutput = module.toBinary({ log: true, write_debug_names: true });
+        binaryBuffer = binaryOutput.buffer;
+      } finally {
+        if (module) module.destroy();
+      }
+    }
+
+    function evalJs(source) {
+      if (binaryBuffer === null) return;
+      const wrappedConsole = Object.create(console);
+      wrappedConsole.log = (...args) => {
+        const line = args.map(String).join('') + '\n';
+        resultContainer.textContent += line;
+        console.log(...args);
+      };
+
+      let wasm = new WebAssembly.Module(binaryBuffer);
+      const fn = new Function('wasmModule', 'console', source);
+      fn(wasm, wrappedConsole);
+    }
+  };
+  __entry();
+</script>
+
+</html>

@@ -1,3 +1,15 @@
+const FEATURES = [
+    'exceptions',
+    'mutable_globals',
+    'sat_float_to_int',
+    'sign_extension',
+    'simd',
+    'threads',
+    'multi_value',
+    'tail_call',
+    'bulk_memory',
+    'reference_types',
+];
 const resultContainer = document.getElementById("result");
 let binaryBuffer = null;
 
@@ -59,6 +71,17 @@ let binaryBuffer = null;
         });
     });
 
+    const features = {};
+
+    for (const feature of FEATURES) {
+        var elem = document.getElementById(`wasm-feature-${feature}`);
+        features[feature] = elem.checked;
+        elem.addEventListener('change', e => {
+            features[feature] = e.target.checked;
+            update();
+        });
+    }
+
     const wrappedConsole = Object.create(console);
     wrappedConsole.log = (...args) => {
         const line = args.map(String).join('') + '\n';
@@ -77,7 +100,6 @@ let binaryBuffer = null;
 
     function evalWat(source) {
         let module;
-        let features = undefined;
         try {
             module = wabt.parseWat('test.wast', source, features);
             module.resolveNames();

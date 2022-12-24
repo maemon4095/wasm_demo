@@ -18,11 +18,11 @@
   body {
     display: grid;
     grid-template:
-      "wat result" 1fr
-      "js  result" 1fr / 1fr 1fr;
+      "toolbar toolbar" auto
+      "wat     result" 1fr
+      "js      result" 1fr / 1fr 1fr;
     row-gap: 1em;
     column-gap: 1em;
-    padding: 1em;
   }
 
 
@@ -41,16 +41,105 @@
   #watcode {
     grid-area: wat;
   }
+
+  #toolbar {
+    grid-area: toolbar;
+  }
+
+  #options_wrapper {
+    z-index: 65535;
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    place-items: center;
+    backdrop-filter: blur(12px) brightness(60%);
+  }
+
+  #options {
+    padding: 1em;
+    background-color: whitesmoke;
+    display: grid;
+    grid-template:
+      "main" 1fr
+      "menu" auto / 1fr;
+  }
+
+  .option-checkbox {
+    display: flex;
+    flex-direction: row;
+  }
 </style>
 
 <body>
+  <div id="toolbar">
+    <button id="open_options">options</button>
+
+    <div id="options_wrapper">
+      <div id="options">
+        <div id="wasm-features" style="grid-area: main; display: flex; flex-direction: column; align-items: stretch;">
+          <div class="option-checkbox">
+            <input type="checkbox" id="wasm-feature-exceptions"><label for="wasm-feature-exceptions">exceptions</label>
+          </div>
+          <div class="option-checkbox">
+            <input type="checkbox" id="wasm-feature-mutable_globals" checked><label
+              for="wasm-feature-mutable_globals">mutable globals</label>
+          </div>
+          <div class="option-checkbox">
+            <input type="checkbox" id="wasm-feature-sat_float_to_int"><label
+              for="wasm-feature-sat_float_to_int">saturating float to int</label>
+          </div>
+          <div class="option-checkbox">
+            <input type="checkbox" id="wasm-feature-sign_extension"><label for="wasm-feature-sign_extension">sign
+              extension</label>
+          </div>
+          <div class="option-checkbox">
+            <input type="checkbox" id="wasm-feature-simd"><label for="wasm-feature-simd">simd</label>
+          </div>
+          <div class="option-checkbox">
+            <input type="checkbox" id="wasm-feature-threads"><label for="wasm-feature-threads">threads</label>
+          </div>
+          <div class="option-checkbox">
+            <input type="checkbox" id="wasm-feature-multi_value" checked><label for="wasm-feature-multi_value">multi
+              value</label>
+          </div>
+          <div class="option-checkbox">
+            <input type="checkbox" id="wasm-feature-tail_call"><label for="wasm-feature-tail_call">tail call</label>
+          </div>
+          <div class="option-checkbox">
+            <input type="checkbox" id="wasm-feature-bulk_memory"><label for="wasm-feature-bulk_memory">bulk
+              memory</label>
+          </div>
+          <div class="option-checkbox">
+            <input type="checkbox" id="wasm-feature-reference_types"><label for="wasm-feature-reference_types">reference
+              types</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <div id="watcode" class="editor-container"></div>
   <div id="jscode" class="editor-container"></div>
   <div id="result" class="editor-container"></div>
 </body>
+
+<script>
+  const open_options = document.getElementById('open_options');
+  const options = document.getElementById('options_wrapper');
+  open_options.addEventListener('click', (e) => {
+    options.style.display = "grid";
+  });
+  options.addEventListener('click', (e) => {
+    if (e.target !== options) {
+      return;
+    }
+    options.style.display = "none";
+  });
+</script>
 <script src="./libwabt.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
-<script src="./demo.js">
-</script>
+<script src="./demo.js"></script>
 
 </html>

@@ -59,12 +59,12 @@
   }
 
   #options {
+    border-radius: 30px;
     padding: 1em;
     background-color: whitesmoke;
     display: grid;
     grid-template:
-      "main" 1fr
-      "menu" auto / 1fr;
+      "feats  props" 1fr / 1fr 1fr;
   }
 
   .option-checkbox {
@@ -79,7 +79,7 @@
 
     <div id="options_wrapper">
       <div id="options" data-savestate="deep">
-        <div id="wasm-features" style="grid-area: main; display: flex; flex-direction: column; align-items: stretch;">
+        <div id="wasm-features" style="grid-area: feats; display: flex; flex-direction: column; align-items: stretch;">
           <h1>features</h1>
           <div class="option-checkbox">
             <input type="checkbox" id="wasm-feature-exceptions"><label for="wasm-feature-exceptions">exceptions</label>
@@ -118,7 +118,11 @@
               types</label>
           </div>
         </div>
-        <input id="wasm-module-name" type="text">
+        <div id="properties" style="grid-area: props;">
+          <h1>properties</h1>
+          <label for="wasm-module-name">wasm module variable name</label>
+          <input id="wasm-module-name" type="text" value="wasmModule" pattern="([\$\w_][\d\w\$_]*)">
+        </div>
       </div>
     </div>
   </div>
@@ -141,9 +145,10 @@
   });
 
   const options = document.getElementById('options');
-  initSaveState(options, false);
+  initSaveState(options, true);
 
   function initSaveState(elem, isInDeep) {
+    console.log(elem.id);
     const mode = elem.dataset.savestate;
     if ((!isInDeep && !mode) || mode === "none") {
       return;
@@ -163,12 +168,13 @@
               break;
             }
           }
-          try {
-            elem[prop] = JSON.parse(data);
-          } catch (e) {
-
+          if (!!data) {
+            const val = JSON.parse(data);
+            elem[prop] = val;
           }
+
           elem.addEventListener('change', (e) => {
+            console.log(e.target[prop]);
             const val = JSON.stringify(e.target[prop]);
             localStorage.setItem(e.target.id, val);
             console.log(`save ${e.target.id}[${prop}] = ${val}`);
@@ -178,7 +184,7 @@
       }
     }
 
-    if (mode === "deep") {
+    if (isInDeep || (mode === "deep")) {
       for (const child of elem.children) {
         initSaveState(child, true);
       }

@@ -80,6 +80,8 @@ let binaryBuffer = null;
         resultEditor.setValue(resultEditor.getValue() + line);
     };
 
+
+
     function update() {
         resultEditor.setValue('');
         try {
@@ -87,6 +89,7 @@ let binaryBuffer = null;
             evalJs(jsEditor.getValue());
         } catch (e) {
             resultEditor.setValue(e.toString());
+            throw e;
         }
     }
 
@@ -110,8 +113,17 @@ let binaryBuffer = null;
     function evalJs(source) {
         if (binaryBuffer === null) return;
         let wasm = new WebAssembly.Module(binaryBuffer);
-        const moduleName = localStorage["wasm-module-name"] ?? "wasmModule";
+        const moduleName = tryParse(localStorage.getItem("wasm-module-name")) ?? "wasmModule";
+        console.log(moduleName);
         const fn = new Function(moduleName, 'console', source);
         fn(wasm, wrappedConsole);
+    }
+
+    function tryParse(json) {
+        try {
+            return JSON.parse(json);
+        } catch (e) {
+            return undefined;
+        }
     }
 })();

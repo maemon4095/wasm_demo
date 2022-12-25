@@ -1,10 +1,7 @@
 name: Deploy static content to Pages
 
 on:
-  push:
-    branches: ["pages"]
-  repository_dispatch:
-    types: ["copy to pages"]
+  workflow_call:
   workflow_dispatch:
 
 permissions:

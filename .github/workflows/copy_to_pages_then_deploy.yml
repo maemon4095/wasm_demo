@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
   
 jobs:
-  deploy:
+  copy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -20,6 +20,7 @@ jobs:
         with:
           ref: master
       - name: Copy to pages
+        continue-on-error: true
         run: |
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
@@ -32,3 +33,7 @@ jobs:
           git add -A
           git commit -m "copy from main"
           git push
+  
+  deploy:
+    needs: copy
+    uses: maemon4095/wasm_demo/.github/workflows/deploy.yml@master

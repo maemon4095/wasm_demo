@@ -15,15 +15,15 @@ let binaryBuffer = null;
 
 (async () => {
     const wabt = await WabtModule();
-    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs' } })
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.30.1/min/vs' } })
 
     window.MonacoEnvironment = {
         getWorkerUrl: function (workerId, label) {
             return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
         self.MonacoEnvironment = {
-          baseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/'
+          baseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.30.1/min/'
         };
-        importScripts('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/base/worker/workerMain.js');`
+        importScripts('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.30.1/min/vs/base/worker/workerMain.js');`
             )}`
         }
     }
@@ -59,7 +59,7 @@ let binaryBuffer = null;
             ...options,
         });
 
-        compiledWasmEditor = monaco.editor.create(document.getElementById("compiled_wasm"), {
+        compiledWasmEditor = monaco.editor.create(document.getElementById("wasm_build_log"), {
             language: 'plaintext',
             readOnly: true,
             ...options,

@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
   
 jobs:
-  deploy:
+  copy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -32,3 +32,5 @@ jobs:
           git add -A
           git commit -m "copy from main"
           git push
+  deploy:
+    uses: maemon4095/wasm_demo/.github/workflows/deploy.yml@master

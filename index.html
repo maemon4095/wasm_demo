@@ -18,6 +18,8 @@
   body {
     display: flex;
     flex-direction: column;
+    background-color: gray;
+
   }
 
   .editor-container {
@@ -25,7 +27,6 @@
   }
 
   #result-pane {
-    border-top: solid 1px gray;
     flex: 1;
   }
 
@@ -128,7 +129,7 @@
     </div>
   </div>
 
-  <div style="flex: 1; display: flex; flex-direction: row;">
+  <div style="flex: 1; display: flex; flex-direction: row; gap: 0.5em">
     <div style="flex: 1;" class="tabbed-menu">
       <div id="watcode" class="editor-container" data-tabname="wat"></div>
       <div id="jscode" class="editor-container" data-tabname="js" data-tab-focus="focused"></div>

@@ -10,7 +10,7 @@ const FEATURES = [
     'bulk_memory',
     'reference_types',
 ];
-const resultContainer = document.getElementById("result");
+
 let binaryBuffer = null;
 
 (async () => {
@@ -31,11 +31,14 @@ let binaryBuffer = null;
     const localStorage = window.localStorage;
     const jsKey = "js";
     const watKey = "wat";
-    let jsEditor, watEditor, resultEditor;
+    let jsEditor, watEditor, resultEditor, compiledWasmEditor;
     require(['vs/editor/editor.main'], () => {
         const options = {
             automaticLayout: true,
             theme: "vs-dark",
+            minimap: {
+                enabled: false,
+            }
         };
 
         jsEditor = monaco.editor.create(document.getElementById('jscode'), {
@@ -50,7 +53,13 @@ let binaryBuffer = null;
             ...options,
         });
 
-        resultEditor = monaco.editor.create(resultContainer, {
+        resultEditor = monaco.editor.create(document.getElementById("result"), {
+            language: 'plaintext',
+            readOnly: true,
+            ...options,
+        });
+
+        compiledWasmEditor = monaco.editor.create(document.getElementById("compiled_wasm"), {
             language: 'plaintext',
             readOnly: true,
             ...options,
@@ -98,15 +107,17 @@ let binaryBuffer = null;
         for (const feature of FEATURES) {
             features[feature] = localStorage.getItem(`wasm-feature-${feature}`);
         }
-        let module;
+        let module, outputLog;
         try {
             module = wabt.parseWat('test.wast', source, features);
             module.resolveNames();
             module.validate(features);
             const binaryOutput = module.toBinary({ log: true, write_debug_names: true });
+            outputLog = binaryOutput.log;
             binaryBuffer = binaryOutput.buffer;
         } finally {
             if (module) module.destroy();
+            compiledWasmEditor.setValue(outputLog);
         }
     }
 

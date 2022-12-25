@@ -34,7 +34,7 @@
     grid-area: js;
   }
 
-  #result {
+  #result-pane {
     grid-area: result;
   }
 
@@ -70,6 +70,21 @@
   .option-checkbox {
     display: flex;
     flex-direction: row;
+  }
+
+  .tabbed-menu-tabbar>* {
+    flex: 1;
+    background: #555555;
+    color: #fff;
+    appearance: none;
+  }
+
+  .tabbed-menu-tabbar>*:hover {
+    background: #777777;
+  }
+
+  .tabbed-menu-tabbar>*[data-tab-focus="focused"] {
+    background: #333333;
   }
 </style>
 
@@ -128,9 +143,14 @@
   </div>
   <div id="watcode" class="editor-container"></div>
   <div id="jscode" class="editor-container"></div>
-  <div id="result" class="editor-container"></div>
+  <div id="result-pane" class="tabbed-menu">
+    <div id="result" class="editor-container" data-tab-focus="focused" data-tabname="result"></div>
+    <div id="compiled_wasm" class="editor-container" data-tabname="build log"></div>
+  </div>
 </body>
 
+
+<script src="./tab.js"></script>
 <script>
   const open_options = document.getElementById('open_options');
   const options_wrapper = document.getElementById('options_wrapper');

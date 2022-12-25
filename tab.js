@@ -38,28 +38,17 @@ function initialize(rootElement) {
         tabbar.replaceChildren();
         const tabs = [...rootElement.children].filter(elem => !elem.classList.contains(tabbar_class));
         for (const tab of tabs) {
-            const name = tab.getAttribute('data-tabname');
-            const tabButton = document.createElement('button');
-            tabButton.className = tabbar_tab_class;
-            tabButton.append(name);
-            tabButton.addEventListener('click', (e) => {
-                tabs.forEach(e => e.setAttribute(tab_focused_attribute, 'none'));
-                [...tabbar.children].forEach(e => e.setAttribute(tab_focused_attribute, 'none'));
-                e.target.setAttribute(tab_focused_attribute, 'focused');
-                tab.setAttribute(tab_focused_attribute, 'focused');
-            });
-            tabbar.append(tabButton);
+            const button = createTabButton(tab, tabs);
+            tabbar.append(button);
         }
     };
 
     const onRootElementChanged = mutations => {
         for (const mutation of mutations) {
-            switch (mutation.type) {
-                case 'childList': {
-                    initializeTabbar();
-                    break;
-                }
+            if (mutation.type !== 'childList') {
+                continue;
             }
+            initializeTabbar();
         }
     };
 
@@ -67,4 +56,42 @@ function initialize(rootElement) {
     rootElement.append(tabbar);
     const rootElementObserver = new MutationObserver(onRootElementChanged);
     rootElementObserver.observe(rootElement, { childList: true });
+
+
+    function createTabButton(tab, tabs) {
+        const name = tab.getAttribute('data-tabname');
+        const tabButton = document.createElement('button');
+        const syncFocus = () => {
+            const focus = tab.getAttribute(tab_focused_attribute);
+            tabButton.setAttribute(tab_focused_attribute, focus);
+            if (focus === 'focused') {
+                for (const t of tabs) {
+                    if (t === tab) {
+                        continue;
+                    }
+                    t.setAttribute(tab_focused_attribute, 'none');
+                }
+            }
+        };
+        tabButton.className = tabbar_tab_class;
+        tabButton.append(name);
+        syncFocus();
+        tabButton.addEventListener('click', (e) => {
+            tab.setAttribute(tab_focused_attribute, 'focused');
+        });
+
+        const onTabAttributeChanged = (mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.type !== "attributes") {
+                    continue;
+                }
+                syncFocus();
+            }
+        };
+        const observer = new MutationObserver(onTabAttributeChanged);
+        observer.observe(tab, { attributes: true });
+
+        return tabButton;
+    }
 }
+

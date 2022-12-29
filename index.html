@@ -1,80 +1,9 @@
 <!DOCTYPE html>
 <html>
-<style>
-  * {
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-  }
 
-  html {
-    display: grid;
-    place-items: stretch;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-  }
-
-  body {
-    display: flex;
-    flex-direction: column;
-    background-color: gray;
-
-  }
-
-  .editor-container {
-    overflow: hidden;
-  }
-
-  #result-pane {
-    flex: 1;
-  }
-
-  #toolbar {
-    flex: none;
-  }
-
-  #options_wrapper {
-    z-index: 65535;
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    place-items: center;
-    backdrop-filter: blur(12px) brightness(60%);
-  }
-
-  #options {
-    border-radius: 30px;
-    padding: 1em;
-    background-color: whitesmoke;
-    display: grid;
-    grid-template:
-      "feats  props" 1fr / 1fr 1fr;
-  }
-
-  .option-checkbox {
-    display: flex;
-    flex-direction: row;
-  }
-
-  .tabbed-menu-tabbar>* {
-    flex: 1;
-    background: #555555;
-    color: #fff;
-    appearance: none;
-  }
-
-  .tabbed-menu-tabbar>*:hover {
-    background: #777777;
-  }
-
-  .tabbed-menu-tabbar>*[data-tab-focus="focused"] {
-    background: #333333;
-  }
-</style>
+<head>
+  <link href="styles.css" rel="stylesheet">
+</head>
 
 <body>
   <div id="toolbar">

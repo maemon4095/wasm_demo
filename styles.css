@@ -19,6 +19,10 @@ body {
 
 }
 
+button {
+    margin: 2px;
+}
+
 .editor-container {
     overflow: hidden;
 }
@@ -59,15 +63,29 @@ body {
 
 .tabbed-menu-tabbar>* {
     flex: 1;
-    background: #555555;
+    background: #777;
     color: #fff;
-    appearance: none;
 }
 
 .tabbed-menu-tabbar>*:hover {
-    background: #777777;
+    background: #888;
 }
 
 .tabbed-menu-tabbar>*[data-tab-focus="focused"] {
-    background: #333333;
+    background: #1e1e1e;
+}
+
+.tabbed-menu-tabbar {
+    margin: 0;
+    padding: 0;
+}
+
+.tabbed-menu-tabbar-tab {
+    padding: 0;
+    margin: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: none;
+    outline: none;
 }
